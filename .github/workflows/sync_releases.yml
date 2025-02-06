@@ -1,0 +1,26 @@
+name: Sync Releases from Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0:00 运行一次
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 需要完整获取 commit 历史
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/原仓库的作者/原仓库名.git
+          git fetch upstream --tags
+
+      - name: Push tags to fork
+        run: |
+          git push origin --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
